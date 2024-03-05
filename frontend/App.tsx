@@ -12,8 +12,9 @@ const App = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskInput, setTaskInput] = useState('');
 
-    const API_URL =
-        Platform.OS === 'android' ? 'http://10.0.2.2:8082/tasks' : 'http://localhost:8082/tasks';
+    const API_URL = Platform.OS === 'android'
+        ? 'http://10.0.2.2:8082/tasks'
+        : 'http://localhost:8082/tasks';
 
     useEffect(() => {
         fetchTasks();
@@ -84,17 +85,17 @@ const App = () => {
                 data={tasks}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
-                <View style={styles.taskItem}>
-                    <Text style={[styles.taskText, item.completed && styles.taskCompleted]}>{item.value}</Text>
-                    <View style={styles.taskActions}>
-                    <TouchableOpacity onPress={() => toggleCompletion(item._id, item.completed)} style={styles.actionButton}>
-                        <Text style={styles.actionText}>{item.completed ? 'Undo' : 'Done'}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => deleteTask(item._id)} style={styles.actionButton}>
-                        <Text style={styles.actionText}>Delete</Text>
-                    </TouchableOpacity>
+                    <View style={styles.taskItem}>
+                        <Text style={[styles.taskText, item.completed && styles.taskCompleted]}>{item.value}</Text>
+                        <View style={styles.taskActions}>
+                            <TouchableOpacity onPress={() => toggleCompletion(item._id, item.completed)} style={styles.actionButton}>
+                                <Text style={styles.actionText}>{item.completed ? 'Undo' : 'Done'}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => deleteTask(item._id)} style={styles.actionButton}>
+                                <Text style={styles.actionText}>Delete</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
                 )}
             />
         </SafeAreaView>
