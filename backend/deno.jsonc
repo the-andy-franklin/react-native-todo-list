@@ -1,0 +1,24 @@
+{
+	"tasks": {
+		"start": "deno run --allow-net --allow-env --allow-sys --allow-read --unstable src/server.ts"
+	},
+	"imports": {
+		"mongoose": "npm:mongoose",
+		"express": "npm:express",
+		"bcrypt": "npm:bcrypt",
+		"cors": "npm:cors",
+		"zod": "npm:zod"
+	},
+	"fmt": {
+		"lineWidth": 120,
+		"indentWidth": 4,
+		"useTabs": true
+	},
+	"lint": {
+		"rules": {
+			"exclude": [
+				"no-unused-vars"
+			]
+		}
+	}
+}
