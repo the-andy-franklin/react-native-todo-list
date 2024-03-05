@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { connect } from "mongoose";
 import cors from "cors";
-import task_router from "./db_entities/task/router.ts";
+import task_router from "./task/router.ts";
 
 // app setup
 
