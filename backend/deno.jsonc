@@ -1,6 +1,6 @@
 {
 	"tasks": {
-		"start": "deno run --allow-net --allow-env --allow-sys --allow-read --unstable src/server.ts"
+		"start": "deno run -A --unstable --watch src/server.ts"
 	},
 	"imports": {
 		"mongoose": "npm:mongoose",
