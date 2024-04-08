@@ -1,70 +1,79 @@
-import { Request, Response, Router } from "express";
+import { Hono } from "hono";
 import { Task } from "./model.ts";
 
-const router = Router();
+const task_router = new Hono();
 
-router.post("/", async (req: Request, res: Response) => {
-	try {
-		const task = new Task(req.body);
-		await task.save();
-
-		res.status(200).json(task);
-	} catch (error: unknown) {
-		if (error instanceof Error) {
-			res.status(500).json({ message: error.message });
-		}
-	}
-});
-
-router.get("/", async (req: Request, res: Response) => {
+task_router.get("/", async (c) => {
 	try {
 		const tasks = await Task.find();
 
-		res.status(200).json(tasks);
+		return c.json(tasks, 200);
 	} catch (error: unknown) {
 		if (error instanceof Error) {
-			res.status(500).json({ message: error.message });
+			return c.json({ message: error.message }, 500);
 		}
 	}
 });
 
-router.get("/:id", async (req: Request, res: Response) => {
+task_router.get("/:id", async (c) => {
 	try {
-		const task = await Task.findById(req.params.id);
-		if (!task) return res.status(404).json({ message: "Task not found" });
+		const id = c.req.param("id");
 
-		res.status(200).json(task);
+		const task = await Task.findById(id);
+		if (!task) return c.json({ message: "Task not found" }, 204);
+
+		return c.json(task, 200);
 	} catch (error: unknown) {
 		if (error instanceof Error) {
-			res.status(500).json({ message: error.message });
+			return c.json({ message: error.message }, 500);
 		}
 	}
 });
 
-router.put("/:id", async (req: Request, res: Response) => {
+task_router.post("/", async (c) => {
 	try {
-		const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
-		if (!task) return res.status(404).json({ message: "Task not found" });
+		const body = await c.req.json();
 
-		res.status(200).json(task);
+		const task = new Task(body);
+		await task.save();
+
+		return c.json(task, 200);
 	} catch (error: unknown) {
 		if (error instanceof Error) {
-			res.status(500).json({ message: error.message });
+			return c.json({ message: error.message }, 500);
 		}
 	}
 });
 
-router.delete("/:id", async (req: Request, res: Response) => {
+task_router.patch("/:id", async (c) => {
 	try {
-		const task = await Task.findByIdAndDelete(req.params.id);
-		if (!task) return res.status(404).json({ message: "Task not found" });
+		const id = c.req.param("id");
+		const body = await c.req.json();
 
-		res.status(200).json({ message: "Task deleted successfully" });
+		const task = await Task.findByIdAndUpdate(id, body, { new: true });
+		if (!task) return c.json({ message: "Task not found" }, 204);
+
+		return c.json(task, 200);
 	} catch (error: unknown) {
 		if (error instanceof Error) {
-			res.status(500).json({ message: error.message });
+			return c.json({ message: error.message }, 500);
 		}
 	}
 });
 
-export default router;
+task_router.delete("/:id", async (c) => {
+	try {
+		const id = c.req.param("id");
+
+		const task = await Task.findByIdAndDelete(id);
+		if (!task) return c.json({ message: "Task not found" }, 204);
+
+		return c.json({ message: "Task deleted successfully" }, 200);
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			return c.json({ message: error.message }, 500);
+		}
+	}
+});
+
+export { task_router };

@@ -2,19 +2,11 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"request": "launch",
-			"name": "Launch Program",
+			"request": "attach",
+			"name": "Attach to Process",
 			"type": "node",
-			"runtimeExecutable": "deno",
-			"runtimeArgs": [
-				"run",
-				"--inspect-wait",
-				"--unstable",
-				"--watch",
-				"${workspaceFolder}/src/server.ts"
-			],
-			"attachSimplePort": 9229,
-			"console": "integratedTerminal"
+			"restart": true,
+			"port": 9229
 		}
 	]
 }

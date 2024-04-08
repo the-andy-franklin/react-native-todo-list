@@ -1,11 +1,11 @@
 {
 	"tasks": {
-		"start": "deno run -A --unstable --watch src/server.ts"
+		"start": "deno run -A --unstable --unstable-hmr --inspect-wait src/server.ts"
 	},
 	"imports": {
+		"hono": "https://deno.land/x/hono@v4.2.2/mod.ts",
+		"hono/": "https://deno.land/x/hono@v4.2.2/",
 		"mongoose": "npm:mongoose",
-		"express": "npm:express",
-		"bcrypt": "npm:bcrypt",
 		"cors": "npm:cors",
 		"zod": "npm:zod"
 	},

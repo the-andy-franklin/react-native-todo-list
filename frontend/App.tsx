@@ -13,8 +13,8 @@ const App = () => {
     const [taskInput, setTaskInput] = useState('');
 
     const API_URL = Platform.OS === 'android'
-        ? 'http://10.0.2.2:8082/tasks'
-        : 'http://localhost:8082/tasks';
+        ? 'http://10.0.2.2:8080/tasks'
+        : 'http://localhost:8080/tasks';
 
     useEffect(() => {
         fetchTasks();
@@ -45,7 +45,7 @@ const App = () => {
 
     const toggleCompletion = async (id: string, completed: boolean) => {
         try {
-            await axios.put(`${API_URL}/${id}`, { completed: !completed });
+            await axios.patch(`${API_URL}/${id}`, { completed: !completed });
             fetchTasks();
         } catch (error) {
             console.log(error);
