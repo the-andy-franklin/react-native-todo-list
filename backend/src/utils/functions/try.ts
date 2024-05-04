@@ -1,6 +1,6 @@
 type Success<T> = {
 	success: true;
-	value: T;
+	data: T;
 };
 
 type Failure = {
@@ -10,8 +10,8 @@ type Failure = {
 
 type Either<T> = Success<T> | Failure;
 
-function createSuccess<T>(value: T): Success<T> {
-	return { success: true, value };
+function createSuccess<T>(data: T): Success<T> {
+	return { success: true, data };
 }
 
 function createFailure(error: unknown): Failure {

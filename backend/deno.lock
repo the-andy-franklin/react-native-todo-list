@@ -170,6 +170,7 @@
     "https://deno.land/x/hono@v4.2.2/jsx/dom/render.ts": "ca76952d936e4994c08a8eef291a353ea39815f42b547f1b3cb143559b3227ca",
     "https://deno.land/x/hono@v4.2.2/jsx/hooks/index.ts": "6a5e712581f29d1c28469006ec534833e600841939b5d0e13688bbcbaaf658f1",
     "https://deno.land/x/hono@v4.2.2/jsx/index.ts": "ca3b63c99e446b29d5d1a6ec79948146e9c3c88121bcbfa4982d0e9b21e33906",
+    "https://deno.land/x/hono@v4.2.2/jsx/intrinsic-elements.ts": "21c3a8f6ba07f0d7d7c0ec7293c79c26b9b62df2894e26cb6c17b6c7ec381264",
     "https://deno.land/x/hono@v4.2.2/jsx/streaming.ts": "6a04614847ce8792b3c43cd9ca091077b4b4e86e756e81f37c672a5d9b7e9097",
     "https://deno.land/x/hono@v4.2.2/jsx/types.ts": "880971bd1e0704a6fba6b786ca596cbe23fc06e36c506f42ea17f84f9879f278",
     "https://deno.land/x/hono@v4.2.2/jsx/utils.ts": "7b9d84ce478c66a5f4709dc3a873ac7104ba3427597683221827abec2761da0e",

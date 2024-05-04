@@ -20,17 +20,16 @@ const task_router = new Hono<KV>();
 const bodyValidatorMiddleware = async (c: Context<KV>, next: Next) => {
 	const body = await c.req.json();
 	const validation_result = body_validator.safeParse(body);
-
 	if (!validation_result.success) return c.json({ message: validation_result.error.message }, 400);
-	c.set("body", validation_result.data);
 
-	next();
+	c.set("body", validation_result.data);
+	await next();
 };
 
 task_router.get("/", async (c) => {
 	const result = await Try(() => Task.find().exec());
 	if (!result.success) return c.json({ message: result.error.message }, 500);
-	return c.json(result.value, 200);
+	return c.json(result.data);
 });
 
 task_router.get("/:id", async (c) => {
@@ -38,16 +37,16 @@ task_router.get("/:id", async (c) => {
 	const task = await Try(() => Task.findById(id).exec());
 
 	if (!task.success) return c.json({ message: task.error.message }, 500);
-	if (!task.value) return c.json({ message: "Task not found" }, 204);
-	return c.json(task.value, 200);
+	if (!task.data) return c.json({ message: "Task not found" }, 404);
+	return c.json(task.data);
 });
 
 task_router.post("/", bodyValidatorMiddleware, async (c) => {
 	const body = c.get("body");
-	const new_task = await Try(() => Task.create(body));
+	const new_task = await Try(() => new Task(body).save());
 
 	if (!new_task.success) return c.json({ message: new_task.error.message }, 500);
-	return c.json(new_task.value, 200);
+	return c.json(new_task.data);
 });
 
 task_router.patch("/:id", bodyValidatorMiddleware, async (c) => {
@@ -56,8 +55,8 @@ task_router.patch("/:id", bodyValidatorMiddleware, async (c) => {
 	const patched_task = await Try(() => Task.findByIdAndUpdate(id, body, { new: true }).exec());
 
 	if (!patched_task.success) return c.json({ message: patched_task.error.message }, 500);
-	if (!patched_task.value) return c.json({ message: "Task not found" }, 204);
-	return c.json(patched_task.value, 200);
+	if (!patched_task.data) return c.json({ message: "Task not found" }, 404);
+	return c.json(patched_task.data);
 });
 
 task_router.delete("/:id", async (c) => {
@@ -65,8 +64,8 @@ task_router.delete("/:id", async (c) => {
 	const deleted_task = await Try(() => Task.findByIdAndDelete(id).exec());
 
 	if (!deleted_task.success) return c.json({ message: deleted_task.error.message }, 500);
-	if (!deleted_task.value) return c.json({ message: "Task not found" }, 204);
-	return c.json({ message: "Task deleted successfully" }, 200);
+	if (!deleted_task.data) return c.json({ message: "Task not found" }, 404);
+	return c.json({ message: "Task deleted successfully" });
 });
 
 export { task_router };
