@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono } from "hono/mod.ts";
 import { cors } from "hono/middleware.ts";
 import { connect } from "mongoose";
 import { task_router } from "./task/router.ts";
