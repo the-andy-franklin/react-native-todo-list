@@ -1,6 +1,6 @@
 {
 	"tasks": {
-		"start": "deno run -A --unstable-hmr --inspect-wait src/server.ts"
+		"start": "deno run -A --watch --inspect-wait src/server.ts"
 	},
 	"imports": {
 		"hono/": "https://deno.land/x/hono@v4.2.2/",
