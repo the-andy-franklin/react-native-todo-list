@@ -29,7 +29,7 @@ type PatchTask = {
 
 const task_router = new Hono();
 
-function createMiddleware<E extends { Variables: { body: any } }>(validator: z.ZodType) {
+function createMiddleware<E extends ({ Variables: { body: any } })>(validator: z.ZodType) {
 	return async (c: Context<E>, next: Next) => {
 		const body = await c.req.json();
 		const validation_result = validator.safeParse(body);
