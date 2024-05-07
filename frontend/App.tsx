@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Alert, SafeAreaView, StatusBar, Platform } from 'react-native';
 import axios from 'axios';
+import { Try } from './utils/functions/try';
+import { z } from 'zod';
 
-interface Task {
-    _id: string;
-    value: string;
-    completed: boolean;
-}
+const task_schema = z.object({
+    _id: z.string(),
+    value: z.string(),
+    completed: z.boolean(),
+});
+
+type Task = z.infer<typeof task_schema>;
 
 const App = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -21,46 +25,47 @@ const App = () => {
     }, []);
 
     const fetchTasks = async () => {
-        try {
-            const { data } = await axios.get<Task[]>(API_URL);
-            setTasks(data);
-        } catch (error) {
-            console.log(error);
+        const result = await Try(() => axios.get<unknown>(API_URL)
+            .then(response => task_schema.array().parse(response.data)),
+        );
+
+        if (result.failure) {
+            console.error(result.error);
             Alert.alert('Error fetching tasks');
+            return;
         }
+
+        setTasks(result.data);
     };
 
-    const addTask = async () => {
+    const addTask = () => {
         if (!taskInput.trim().length) return;
+        setTaskInput('');
 
-        try {
-            const { data } = await axios.post<Task>(API_URL, { value: taskInput, completed: false });
-            setTasks(currentTasks => [...currentTasks, data]);
-            setTaskInput('');
-        } catch (error) {
-            console.log(error);
-            Alert.alert('Error adding task');
-        }
+        axios.post(API_URL, { value: taskInput })
+            .then(fetchTasks)
+            .catch(error => {
+                console.error(error);
+                Alert.alert('Error adding task');
+            });
     };
 
-    const toggleCompletion = async (id: string, completed: boolean) => {
-        try {
-            await axios.patch(`${API_URL}/${id}`, { completed: !completed });
-            fetchTasks();
-        } catch (error) {
-            console.log(error);
-            Alert.alert('Error toggling task completion');
-        }
+    const toggleCompletion = ({ _id, completed }: Task) => {
+        axios.patch(`${API_URL}/${_id}`, { completed: !completed })
+            .then(fetchTasks)
+            .catch(error => {
+                console.error(error);
+                Alert.alert('Error toggling task completion');
+            });
     };
 
-    const deleteTask = async (id: string) => {
-        try {
-            await axios.delete(`${API_URL}/${id}`);
-            fetchTasks();
-        } catch (error) {
-            console.log(error);
-            Alert.alert('Error deleting task');
-        }
+    const deleteTask = ({ _id }: Task) => {
+        axios.delete(`${API_URL}/${_id}`)
+            .then(fetchTasks)
+            .catch(error => {
+                console.error(error);
+                Alert.alert('Error deleting task');
+            });
     };
 
     return (
@@ -88,10 +93,10 @@ const App = () => {
                     <View style={styles.taskItem}>
                         <Text style={[styles.taskText, item.completed && styles.taskCompleted]}>{item.value}</Text>
                         <View style={styles.taskActions}>
-                            <TouchableOpacity onPress={() => toggleCompletion(item._id, item.completed)} style={styles.actionButton}>
+                            <TouchableOpacity onPress={() => toggleCompletion(item)} style={styles.actionButton}>
                                 <Text style={styles.actionText}>{item.completed ? 'Undo' : 'Done'}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => deleteTask(item._id)} style={styles.actionButton}>
+                            <TouchableOpacity onPress={() => deleteTask(item)} style={styles.actionButton}>
                                 <Text style={styles.actionText}>Delete</Text>
                             </TouchableOpacity>
                         </View>

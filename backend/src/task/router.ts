@@ -1,30 +1,47 @@
-import { Context, Hono, Next } from "hono/mod.ts";
+import { Context, Env, Hono, Next } from "hono/mod.ts";
 import { Task } from "./model.ts";
 import { Try } from "../utils/functions/try.ts";
 import { z } from "zod";
 
-const body_validator = z.object({
+const create_task_body_validator = z.object({
 	value: z.string().trim().min(1),
 });
 
-type Body = z.infer<typeof body_validator>;
+type CreateTaskBody = z.infer<typeof create_task_body_validator>;
 
-type KV = {
+type CreateTask = {
 	Variables: {
-		body: Body;
+		body: CreateTaskBody;
 	};
 };
 
-const task_router = new Hono<KV>();
+const patch_task_body_validator = z.object({
+	completed: z.boolean().optional(),
+});
 
-const bodyValidatorMiddleware = async (c: Context<KV>, next: Next) => {
-	const body = await c.req.json();
-	const validation_result = body_validator.safeParse(body);
-	if (!validation_result.success) return c.json({ message: validation_result.error.message }, 400);
+type PatchTaskBody = z.infer<typeof patch_task_body_validator>;
 
-	c.set("body", validation_result.data);
-	await next();
+type PatchTask = {
+	Variables: {
+		body: PatchTaskBody;
+	};
 };
+
+const task_router = new Hono();
+
+function createMiddleware<E extends { Variables: { body: any } }>(validator: z.ZodType) {
+	return async (c: Context<E>, next: Next) => {
+		const body = await c.req.json();
+		const validation_result = validator.safeParse(body);
+		if (!validation_result.success) return c.json({ message: validation_result.error.message }, 400);
+
+		c.set("body", validation_result.data);
+		await next();
+	};
+}
+
+const postBodyValidatorMiddleware = createMiddleware<CreateTask>(create_task_body_validator);
+const patchBodyValidatorMiddleware = createMiddleware<PatchTask>(patch_task_body_validator);
 
 task_router.get("/", async (c) => {
 	const result = await Try(() => Task.find().exec());
@@ -41,7 +58,7 @@ task_router.get("/:id", async (c) => {
 	return c.json(task.data);
 });
 
-task_router.post("/", bodyValidatorMiddleware, async (c) => {
+task_router.post("/", postBodyValidatorMiddleware, async (c) => {
 	const body = c.get("body");
 	const new_task = await Try(() => new Task(body).save());
 
@@ -49,7 +66,7 @@ task_router.post("/", bodyValidatorMiddleware, async (c) => {
 	return c.json(new_task.data);
 });
 
-task_router.patch("/:id", bodyValidatorMiddleware, async (c) => {
+task_router.patch("/:id", patchBodyValidatorMiddleware, async (c) => {
 	const id = c.req.param("id");
 	const body = c.get("body");
 	const patched_task = await Try(() => Task.findByIdAndUpdate(id, body, { new: true }).exec());
