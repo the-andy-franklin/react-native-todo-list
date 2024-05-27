@@ -6,7 +6,8 @@
 		"hono/": "https://deno.land/x/hono@v4.2.2/",
 		"mongoose": "npm:mongoose",
 		"cors": "npm:cors",
-		"zod": "npm:zod"
+		"zod": "npm:zod",
+		"fp-try": "jsr:@2or3godzillas/fp-try"
 	},
 	"compilerOptions": {
 		"strict": true,
