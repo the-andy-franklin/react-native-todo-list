@@ -1,7 +1,9 @@
 import { Context, Hono, Next } from "hono/mod.ts";
 import { Task } from "./model.ts";
 import { z } from "zod";
-import Try from "fp-try";
+import { Try } from "fp-try";
+import { User } from "../user/model.ts";
+import { startSession } from "mongoose";
 
 const create_task_body_validator = z.object({
 	value: z.string().trim().min(1),
@@ -28,6 +30,7 @@ type PatchTask = {
 };
 
 const task_router = new Hono();
+task_router.basePath("/tasks");
 
 function createMiddleware<E extends ({ Variables: { body: any } })>(validator: z.ZodType) {
 	return async (c: Context<E>, next: Next) => {
@@ -44,10 +47,12 @@ const postBodyValidatorMiddleware = createMiddleware<CreateTask>(create_task_bod
 const patchBodyValidatorMiddleware = createMiddleware<PatchTask>(patch_task_body_validator);
 
 task_router.get("/", async (c) => {
-	const result = await Try(() => Task.find().exec());
-	if (result.failure) return c.json({ message: result.error.message }, 500);
+	const { username }: { username: string } = c.get("jwtPayload");
+	const user = await User.findOne({ username }).exec();
+	if (!user) return c.json({ message: "User not found" }, 400);
 
-	return c.json(result.data);
+	const { tasks } = user;
+	return c.json(tasks);
 });
 
 task_router.get("/:id", async (c) => {
@@ -60,10 +65,25 @@ task_router.get("/:id", async (c) => {
 });
 
 task_router.post("/", postBodyValidatorMiddleware, async (c) => {
-	const body = c.get("body");
-	const new_task = await Try(() => new Task(body).save());
+	const { username }: { username: string } = c.get("jwtPayload");
+	const user = await User.findOne({ username }).exec();
+	if (!user) return c.json({ message: "User not found" }, 400);
 
+	const body = c.get("body");
+	const new_task = await Try(async () => {
+		const session = await startSession();
+		session.startTransaction();
+
+		const task = await new Task({ ...body, author: user._id }).save({ session });
+		await User.findOneAndUpdate({ username }, { $push: { tasks: task._id } }, { new: true })
+			.session(session)
+			.exec();
+
+		session.commitTransaction();
+		return task;
+	});
 	if (new_task.failure) return c.json({ message: new_task.error.message }, 500);
+
 	return c.json(new_task.data);
 });
 
