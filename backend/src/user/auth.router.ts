@@ -13,12 +13,13 @@ auth_router.post("/sign-up", async (c) => {
 	const result = await Try(() => user.save());
 	if (result.failure) return c.json({ error: result.error.message }, 500);
 
-	return c.json({ message: "User created" });
+	const token = await sign({ _id: user._id, username: user.username }, env.JWT_SECRET);
+	return c.json({ token });
 });
 
 auth_router.post("/login", async (c) => {
 	const { username, password } = await c.req.json();
-	const user = await User.findOne({ username }).exec();
+	const user = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, "i") } }).exec();
 	if (!user) return c.json({ error: "user with username does not exist" }, 500);
 
 	const passwords_match = await user.comparePassword(password);

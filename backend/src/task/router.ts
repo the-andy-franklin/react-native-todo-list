@@ -30,7 +30,6 @@ type PatchTask = {
 };
 
 const task_router = new Hono();
-task_router.basePath("/tasks");
 
 function createMiddleware<E extends ({ Variables: { body: any } })>(validator: z.ZodType) {
 	return async (c: Context<E>, next: Next) => {
@@ -48,7 +47,7 @@ const patchBodyValidatorMiddleware = createMiddleware<PatchTask>(patch_task_body
 
 task_router.get("/", async (c) => {
 	const { username }: { username: string } = c.get("jwtPayload");
-	const user = await User.findOne({ username }).exec();
+	const user = await User.findOne({ username }).populate("tasks").exec();
 	if (!user) return c.json({ message: "User not found" }, 400);
 
 	const { tasks } = user;
@@ -70,8 +69,9 @@ task_router.post("/", postBodyValidatorMiddleware, async (c) => {
 	if (!user) return c.json({ message: "User not found" }, 400);
 
 	const body = c.get("body");
+	const session = await startSession();
+
 	const new_task = await Try(async () => {
-		const session = await startSession();
 		session.startTransaction();
 
 		const task = await new Task({ ...body, author: user._id }).save({ session });
@@ -79,10 +79,14 @@ task_router.post("/", postBodyValidatorMiddleware, async (c) => {
 			.session(session)
 			.exec();
 
-		session.commitTransaction();
+		await session.commitTransaction();
 		return task;
 	});
-	if (new_task.failure) return c.json({ message: new_task.error.message }, 500);
+
+	if (new_task.failure) {
+		session.abortTransaction();
+		return c.json({ message: new_task.error.message }, 500);
+	}
 
 	return c.json(new_task.data);
 });
