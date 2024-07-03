@@ -1,5 +1,5 @@
-import axios from 'axios';
 import React from 'react';
+import axios from 'axios';
 import { StyleSheet, SafeAreaView, View, Text, TextInput, Pressable } from 'react-native';
 import { useAppNavigation } from '../navigator';
 import { API_URL } from '../env';
@@ -13,7 +13,7 @@ const SignUp = () => {
     const { setToken } = useTokenStore();
 
     const signUp = async () => {
-        const response = await axios.post(`${API_URL}/sign-up`, { username, password });
+        const response = await axios.post(`${API_URL}/signup`, { username, password });
         setToken(response.data.token);
         window.location.reload();
     };

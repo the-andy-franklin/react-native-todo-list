@@ -24,17 +24,12 @@ UserSchema.pre("save", async function (next) {
 	next();
 });
 
-UserSchema.pre("findOneAndDelete", { document: true, query: true }, async function (next) {
-	const user = await User.findOne(this.getFilter()).exec();
-	if (!user) return next();
-
-	await Try(() => Task.deleteMany({ author: user._id }).exec());
+UserSchema.post("findOneAndDelete", { document: false, query: true }, async function (doc, next) {
+	await Try(() => Task.deleteMany({ author: doc._id }).exec());
 	next();
 });
 
-UserSchema.methods.comparePassword = async function (
-	candidatePassword: string,
-) {
+UserSchema.methods.comparePassword = async function (candidatePassword: string) {
 	return await bcrypt.compare(candidatePassword, this.password);
 };
 

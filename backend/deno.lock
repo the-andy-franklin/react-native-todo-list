@@ -352,6 +352,7 @@
     "https://deno.land/x/hono@v4.2.2/utils/url.ts": "855169632c61d03703bd08cafb27664ba3fdb352892f01687d5cce8fd49e3cb1",
     "https://deno.land/x/hono@v4.2.2/validator/index.ts": "6c986e8b91dcf857ecc8164a506ae8eea8665792a4ff7215471df669c632ae7c",
     "https://deno.land/x/hono@v4.2.2/validator/validator.ts": "6ac0cd5f77d5a921c71e83199d22a1f3692b8499faed958250bdca856d08de52",
+    "https://deno.land/x/mongoose@8.4.4/index.js": "54fb303ad0b31e98f65c3e8ec03cbf0115362debdc2e3080a14e7e022b16bc6b",
     "https://esm.sh/mongoose@8.2.1": "5e1d088a169b65d8a56fd16cafffcf8b0c0d21197f0e299911240954db7bed81",
     "https://esm.sh/v135/mongoose@8.2.1/denonext/mongoose.mjs": "6c44c17a2a280930bd97f1deb43543c1b2eebf5e580a0f7691c99346821ebd45"
   },
