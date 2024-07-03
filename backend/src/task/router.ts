@@ -3,7 +3,6 @@ import { Task } from "./model.ts";
 import { z } from "zod";
 import { Try } from "fp-try";
 import { User } from "../user/model.ts";
-import { startSession } from "mongoose";
 
 const create_task_body_validator = z.object({
 	value: z.string().trim().min(1),

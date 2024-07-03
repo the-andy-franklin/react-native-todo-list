@@ -10,7 +10,7 @@ export type Task = Document & {
 const TaskSchema = new Schema<Task>({
 	value: { type: String, required: true },
 	completed: { type: Boolean, default: false, required: true },
-	author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+	author: { type: Schema.Types.ObjectId as any, ref: "User", required: true },
 }, { timestamps: true });
 
 TaskSchema.post<Task>("save", { document: true, query: false }, async function (doc, next) {
