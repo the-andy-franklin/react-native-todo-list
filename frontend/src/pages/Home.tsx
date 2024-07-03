@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Alert, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, TextInput, FlatList, StyleSheet, Alert, SafeAreaView, StatusBar, Pressable } from 'react-native';
 import axios from 'axios';
 import { Try } from '../../utils/functions/try';
 import { z } from 'zod';
@@ -95,9 +95,9 @@ const Home = () => {
             <StatusBar barStyle="dark-content" />
             <View style={styles.header}>
                 <Text style={styles.title}>{username}</Text>
-                <TouchableOpacity onPress={logout}>
+                <Pressable onPress={logout}>
                     <Text style={styles.logout}>Logout</Text>
-                </TouchableOpacity>
+                </Pressable>
             </View>
             <View style={styles.inputContainer}>
                 <TextInput
@@ -107,9 +107,9 @@ const Home = () => {
                     value={taskInput}
                     onChangeText={setTaskInput}
                 />
-                <TouchableOpacity onPress={addTask} style={styles.addButton}>
+                <Pressable onPress={addTask} style={styles.addButton}>
                     <Text style={styles.addButtonText}>+</Text>
-                </TouchableOpacity>
+                </Pressable>
             </View>
             <FlatList
                 data={tasks}
@@ -118,12 +118,12 @@ const Home = () => {
                     <View style={styles.taskItem}>
                         <Text style={[styles.taskText, item.completed && styles.taskCompleted]}>{item.value}</Text>
                         <View style={styles.taskActions}>
-                            <TouchableOpacity onPress={() => toggleCompletion(item)} style={styles.actionButton}>
+                            <Pressable onPress={() => toggleCompletion(item)} style={styles.actionButton}>
                                 <Text style={styles.actionText}>{item.completed ? 'Undo' : 'Done'}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => deleteTask(item)} style={styles.actionButton}>
+                            </Pressable>
+                            <Pressable onPress={() => deleteTask(item)} style={styles.actionButton}>
                                 <Text style={styles.actionText}>Delete</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                     </View>
                 )}

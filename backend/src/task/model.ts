@@ -1,21 +1,25 @@
-import { Document, model, Schema } from "mongoose";
+import { Document, model, Query, Schema, Types } from "mongoose";
+import { User } from "../user/model.ts";
 
-type Task = Document & {
+export type Task = Document & {
 	value: string;
 	completed: boolean;
-	author: { type: Schema.Types.ObjectId; ref: "User" };
+	author: Types.ObjectId;
 };
 
-const TaskSchema = new Schema({
+const TaskSchema = new Schema<Task>({
 	value: { type: String, required: true },
 	completed: { type: Boolean, default: false, required: true },
 	author: { type: Schema.Types.ObjectId, ref: "User", required: true },
 }, { timestamps: true });
 
-TaskSchema.pre("findOneAndDelete", { document: false, query: true }, async function (next) {
-	const task = await this.model.findOne(this.getFilter()).populate("author").exec();
-	await task.author.tasks.pull(task._id);
-	await task.author.save();
+TaskSchema.post<Task>("save", { document: true, query: false }, async function (doc, next) {
+	await User.findOneAndUpdate({ _id: doc.author }, { $push: { tasks: doc._id } }).exec();
+	next();
+});
+
+TaskSchema.post<Query<Task, Task>>("findOneAndDelete", { document: false, query: true }, async function (doc, next) {
+	await User.findOneAndUpdate({ _id: doc.author }, { $pull: { tasks: doc._id } }).exec();
 	next();
 });
 

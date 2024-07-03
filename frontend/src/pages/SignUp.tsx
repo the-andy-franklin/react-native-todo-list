@@ -1,23 +1,20 @@
 import axios from 'axios';
 import React from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { useAppNavigation } from '../../App';
-import { useUserStore } from '../zustand/user-store';
+import { StyleSheet, SafeAreaView, View, Text, TextInput, Pressable } from 'react-native';
+import { useAppNavigation } from '../navigator';
 import { API_URL } from '../env';
+import { useUserStore } from '../zustand/user-store';
 import { useTokenStore } from '../zustand/token-store';
 
 const SignUp = () => {
     const navigation = useAppNavigation();
-    const { username: _username, setUsername: _setUsername } = useUserStore();
-    const { token, setToken } = useTokenStore();
-
-    const [username, setUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
+    const { username, setUsername } = useUserStore();
+    const { setToken } = useTokenStore();
 
     const signUp = async () => {
         const response = await axios.post(`${API_URL}/sign-up`, { username, password });
         setToken(response.data.token);
-        _setUsername(username);
         window.location.reload();
     };
 
@@ -42,12 +39,12 @@ const SignUp = () => {
                 placeholderTextColor="#888"
                 style={styles.text_input}
                 onChangeText={setPassword}
-                returnKeyType="send"
+                enterKeyHint="send"
                 onSubmitEditing={signUp}
               />
-              <TouchableOpacity style={styles.button} onPress={signUp}>
+              <Pressable style={styles.button} onPress={signUp}>
                 <Text style={{ color: 'white' }}>Submit</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
         </SafeAreaView>
@@ -90,8 +87,9 @@ const styles = StyleSheet.create({
       borderRadius: 5,
     },
     button: {
-      backgroundColor: 'skyblue',
+      backgroundColor: 'limegreen',
       padding: 10,
+      borderRadius: 5,
       alignSelf: 'flex-end',
     },
 });

@@ -69,26 +69,10 @@ task_router.post("/", postBodyValidatorMiddleware, async (c) => {
 	if (!user) return c.json({ message: "User not found" }, 400);
 
 	const body = c.get("body");
-	const session = await startSession();
+	const task = await Try(async () => await new Task({ ...body, author: user._id }).save());
+	if (task.failure) return c.json({ message: task.error.message }, 500);
 
-	const new_task = await Try(async () => {
-		session.startTransaction();
-
-		const task = await new Task({ ...body, author: user._id }).save({ session });
-		await User.findOneAndUpdate({ username }, { $push: { tasks: task._id } }, { new: true })
-			.session(session)
-			.exec();
-
-		await session.commitTransaction();
-		return task;
-	});
-
-	if (new_task.failure) {
-		session.abortTransaction();
-		return c.json({ message: new_task.error.message }, 500);
-	}
-
-	return c.json(new_task.data);
+	return c.json(task.data);
 });
 
 task_router.patch("/:id", patchBodyValidatorMiddleware, async (c) => {
@@ -103,7 +87,7 @@ task_router.patch("/:id", patchBodyValidatorMiddleware, async (c) => {
 
 task_router.delete("/:id", async (c) => {
 	const id = c.req.param("id");
-	const deleted_task = await Try(() => Task.findByIdAndDelete(id).exec());
+	const deleted_task = await Try(async () => await Task.findByIdAndDelete(id).exec());
 
 	if (deleted_task.failure) return c.json({ message: deleted_task.error.message }, 500);
 	if (!deleted_task.data) return c.json({ message: "Task not found" }, 404);

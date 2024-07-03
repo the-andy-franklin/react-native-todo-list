@@ -9,6 +9,8 @@
       "npm:@types/passport": "npm:@types/passport@1.0.16",
       "npm:bcryptjs": "npm:bcryptjs@2.4.3",
       "npm:cors": "npm:cors@2.8.5",
+      "npm:mongodb": "npm:mongodb@6.6.2",
+      "npm:mongoose": "npm:mongoose@8.4.4",
       "npm:mongoose@8.4.4": "npm:mongoose@8.4.4",
       "npm:passport": "npm:passport@0.7.0",
       "npm:zod": "npm:zod@3.22.4"
@@ -358,7 +360,7 @@
       "jsr:@2or3godzillas/fp-try",
       "npm:bcryptjs",
       "npm:cors",
-      "npm:mongoose@8.4.4",
+      "npm:mongoose",
       "npm:passport",
       "npm:zod"
     ]

@@ -1,4 +1,4 @@
-import mongoose, { Document, Query, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 // @deno-types="npm:@types/bcryptjs"
 import bcrypt from "bcryptjs";
 import { Task } from "../task/model.ts";
@@ -7,11 +7,11 @@ import { Try } from "fp-try";
 export type User = Document & {
 	username: string;
 	password: string;
-	tasks: { type: Schema.Types.ObjectId; ref: "Task" }[];
+	tasks: Types.ObjectId[];
 	comparePassword(candidatePassword: string): Promise<boolean>;
 };
 
-const UserSchema = new Schema({
+const UserSchema = new Schema<User>({
 	username: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
 	tasks: [{ type: Schema.Types.ObjectId, ref: "Task" }],
@@ -24,8 +24,10 @@ UserSchema.pre("save", async function (next) {
 	next();
 });
 
-UserSchema.pre("findOneAndDelete", { document: false, query: true }, async function (next) {
-	const user = await this.model.findOne(this.getFilter());
+UserSchema.pre("findOneAndDelete", { document: true, query: true }, async function (next) {
+	const user = await User.findOne(this.getFilter()).exec();
+	if (!user) return next();
+
 	await Try(() => Task.deleteMany({ author: user._id }).exec());
 	next();
 });

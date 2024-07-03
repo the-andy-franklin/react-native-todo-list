@@ -4,7 +4,7 @@
 	},
 	"imports": {
 		"hono/": "https://deno.land/x/hono@v4.2.2/",
-		"mongoose": "npm:mongoose@8.4.4",
+		"mongoose": "npm:mongoose",
 		"passport": "npm:passport",
 		"bcryptjs": "npm:bcryptjs",
 		"cors": "npm:cors",
