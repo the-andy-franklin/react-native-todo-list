@@ -87,7 +87,6 @@ const Home = () => {
 
     const logout = () => {
         clearToken();
-        window.location.reload();
     };
 
     return (
@@ -106,6 +105,7 @@ const Home = () => {
                     placeholderTextColor="#888"
                     value={taskInput}
                     onChangeText={setTaskInput}
+                    autoCapitalize='none'
                 />
                 <Pressable onPress={addTask} style={styles.addButton}>
                     <Text style={styles.addButtonText}>+</Text>

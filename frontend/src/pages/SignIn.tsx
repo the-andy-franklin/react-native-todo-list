@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { StyleSheet, SafeAreaView, View, Text, TextInput, Pressable } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, TextInput, Pressable, Dimensions } from 'react-native';
 import { useAppNavigation } from '../navigator';
 import { API_URL } from '../env';
 import { useUserStore } from '../zustand/user-store';
@@ -15,7 +15,6 @@ const SignIn = () => {
     const signIn = async () => {
         const response = await axios.post(`${API_URL}/signin`, { username, password });
         setToken(response.data.token);
-        window.location.reload();
     };
 
     return (
@@ -33,6 +32,7 @@ const SignIn = () => {
                 placeholderTextColor="#888"
                 style={styles.text_input}
                 onChangeText={setUsername}
+                autoCapitalize='none'
               />
               <TextInput
                 placeholder="Password"
@@ -41,6 +41,7 @@ const SignIn = () => {
                 onChangeText={setPassword}
                 enterKeyHint='send'
                 onSubmitEditing={signIn}
+                autoCapitalize='none'
               />
               <Pressable style={styles.button} onPress={signIn}>
                 <Text style={{ color: 'white' }}>Submit</Text>
@@ -83,6 +84,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#6200ee',
         borderRadius: 5,
         gap: 10,
+        width: (() => {
+          const { width } = Dimensions.get('window');
+          return width > 600 ? 400 : width * 0.8;
+        })(),
     },
     text_input: {
       color: 'black',

@@ -19,8 +19,12 @@ auth_router.post("/signup", async (c) => {
 
 auth_router.post("/signin", async (c) => {
 	const { username, password } = await c.req.json();
-	const user = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, "i") } }).exec();
-	if (!user) return c.json({ error: "user does not exist" }, 500);
+	const find_result = await Try(() =>
+		User.findOne({ username: { $regex: new RegExp(`^${username}$`, "i") } }).exec()
+	);
+	if (!find_result.success) return c.json({ error: "Something went wrong" }, 500);
+	if (!find_result.data) return c.json({ error: "User not found" }, 400);
+	const user = find_result.data;
 
 	const passwords_match = await user.comparePassword(password);
 	if (!passwords_match) return c.json({ error: "passwords do not match" }, 500);

@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 // @deno-types="npm:@types/bcryptjs"
 import bcrypt from "bcryptjs";
 import { Task } from "../task/model.ts";
@@ -7,7 +7,7 @@ import { Try } from "fp-try";
 export type User = Document & {
 	username: string;
 	password: string;
-	tasks: Types.ObjectId[];
+	tasks: Task["_id"][];
 	comparePassword(candidatePassword: string): Promise<boolean>;
 };
 
