@@ -17,8 +17,9 @@ type CreateTask = {
 };
 
 const patch_task_body_validator = z.object({
-	completed: z.boolean().optional(),
-});
+	value: z.string().trim().min(1),
+	completed: z.boolean(),
+}).partial();
 
 type PatchTaskBody = z.infer<typeof patch_task_body_validator>;
 
@@ -68,29 +69,31 @@ task_router.post("/", postBodyValidatorMiddleware, async (c) => {
 	if (!user) return c.json({ message: "User not found" }, 400);
 
 	const body = c.get("body");
-	const task = await Try(() => new Task({ ...body, author: user._id }).save());
-	if (task.failure) return c.json({ message: task.error.message }, 500);
-	if (!task.data) return c.json({ message: "Task not created" }, 500);
+	const new_task = await Try(() => new Task({ ...body, author: user._id }).save());
+	if (new_task.failure) return c.json({ message: new_task.error.message }, 500);
+	if (!new_task.data) return c.json({ message: "Task not created" }, 500);
 
-	return c.json(task.data);
+	return c.json(new_task.data);
 });
 
 task_router.patch("/:id", patchBodyValidatorMiddleware, async (c) => {
 	const id = c.req.param("id");
 	const body = c.get("body");
-	const patched_task = await Try(() => Task.findByIdAndUpdate(id, body, { new: true }).exec());
 
+	const patched_task = await Try(() => Task.findByIdAndUpdate(id, body, { new: true }).exec());
 	if (patched_task.failure) return c.json({ message: patched_task.error.message }, 500);
 	if (!patched_task.data) return c.json({ message: "Task not found" }, 404);
+
 	return c.json(patched_task.data);
 });
 
 task_router.delete("/:id", async (c) => {
 	const id = c.req.param("id");
-	const deleted_task = await Try(async () => await Task.findByIdAndDelete(id).exec());
+	const deleted_task = await Try(() => Task.findByIdAndDelete(id).exec());
 
 	if (deleted_task.failure) return c.json({ message: deleted_task.error.message }, 500);
 	if (!deleted_task.data) return c.json({ message: "Task not found" }, 404);
+
 	return c.json({ message: "Task deleted successfully" });
 });
 
