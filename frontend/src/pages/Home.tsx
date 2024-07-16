@@ -27,15 +27,16 @@ const Home = () => {
     }, []);
 
     const fetchTasks = async () => {
-        const result = await Try(() => axios.get<unknown>(`${API_URL}/tasks`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-        .then(response => task_schema.array().parse(response.data)));
+        const result = await Try(() => (
+            axios.get<unknown>(`${API_URL}/tasks`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }).then(response => task_schema.array().parse(response.data))
+        ));
 
         if (result.failure) {
-            console.error(result.error);
+            console.error(result.error.message);
             Alert.alert('Error fetching tasks');
             return;
         }

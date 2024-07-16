@@ -46,19 +46,19 @@ const patchBodyValidatorMiddleware = createMiddleware<PatchTask>(patch_task_body
 
 task_router.get("/", async (c) => {
 	const { username }: { username: string } = c.get("jwtPayload");
-	const user = await User.findOne({ username }).populate("tasks").exec();
-	if (!user) return c.json({ message: "User not found" }, 400);
+	const user = await Try(() => User.findOne({ username }).populate("tasks").exec());
+	if (user.failure) return c.json({ message: user.error.message }, 500);
+	if (!user.data) return c.json({ message: "User not found" }, 400);
 
-	const { tasks } = user;
-	return c.json(tasks);
+	return c.json(user.data.tasks);
 });
 
 task_router.get("/:id", async (c) => {
 	const id = c.req.param("id");
 	const task = await Try(() => Task.findById(id).exec());
-
 	if (task.failure) return c.json({ message: task.error.message }, 500);
 	if (!task.data) return c.json({ message: "Task not found" }, 404);
+
 	return c.json(task.data);
 });
 
@@ -68,8 +68,9 @@ task_router.post("/", postBodyValidatorMiddleware, async (c) => {
 	if (!user) return c.json({ message: "User not found" }, 400);
 
 	const body = c.get("body");
-	const task = await Try(async () => await new Task({ ...body, author: user._id }).save());
+	const task = await Try(() => new Task({ ...body, author: user._id }).save());
 	if (task.failure) return c.json({ message: task.error.message }, 500);
+	if (!task.data) return c.json({ message: "Task not created" }, 500);
 
 	return c.json(task.data);
 });

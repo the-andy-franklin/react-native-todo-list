@@ -1,7 +1,7 @@
-import { Document, model, Query, Schema } from "mongoose";
+import { Document, model, Query, Schema, Types } from "mongoose";
 import { User } from "../user/model.ts";
 
-export type Task = Document & {
+export type Task = Document<Types.ObjectId> & {
 	value: string;
 	completed: boolean;
 	author: User["_id"];

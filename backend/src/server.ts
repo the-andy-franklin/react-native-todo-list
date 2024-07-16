@@ -15,10 +15,10 @@ await connect("mongodb://localhost:27017/todoApp")
 
 app.route("/", auth_router);
 app.use(jwt({ secret: env.JWT_SECRET }));
-app.route("/user", user_router);
 
-app.get("/", (c) => c.text("Hello from backend!"));
+app.route("/user", user_router);
 app.route("/tasks", task_router);
+
 app.all("*", (c) => c.body(null, 404));
 
 Deno.serve({ port: 8080 }, app.fetch);
