@@ -45,7 +45,7 @@ const Home = () => {
     };
 
     const addTask = () => {
-        if (!taskInput.trim().length) return;
+        if (!taskInput.trim()) return;
 
         axios.post(`${API_URL}/tasks`, { value: taskInput }, {
             headers: {
@@ -86,16 +86,12 @@ const Home = () => {
         });
     };
 
-    const logout = () => {
-        clearToken();
-    };
-
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" />
             <View style={styles.header}>
                 <Text style={styles.title}>{username}</Text>
-                <Pressable onPress={logout}>
+                <Pressable onPress={clearToken}>
                     <Text style={styles.logout}>Logout</Text>
                 </Pressable>
             </View>
@@ -114,7 +110,7 @@ const Home = () => {
             </View>
             <FlatList
                 data={tasks}
-                keyExtractor={(item) => item._id}
+                keyExtractor={({ _id }) => _id}
                 renderItem={({ item }) => (
                     <View style={styles.taskItem}>
                         <Text style={[styles.taskText, item.completed && styles.taskCompleted]}>{item.value}</Text>

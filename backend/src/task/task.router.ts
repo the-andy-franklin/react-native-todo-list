@@ -79,7 +79,6 @@ task_router.post("/", postBodyValidatorMiddleware, async (c) => {
 task_router.patch("/:id", patchBodyValidatorMiddleware, async (c) => {
 	const id = c.req.param("id");
 	const body = c.get("body");
-
 	const patched_task = await Try(() => Task.findByIdAndUpdate(id, body, { new: true }).exec());
 	if (patched_task.failure) return c.json({ message: patched_task.error.message }, 500);
 	if (!patched_task.data) return c.json({ message: "Task not found" }, 404);
@@ -90,7 +89,6 @@ task_router.patch("/:id", patchBodyValidatorMiddleware, async (c) => {
 task_router.delete("/:id", async (c) => {
 	const id = c.req.param("id");
 	const deleted_task = await Try(() => Task.findByIdAndDelete(id).exec());
-
 	if (deleted_task.failure) return c.json({ message: deleted_task.error.message }, 500);
 	if (!deleted_task.data) return c.json({ message: "Task not found" }, 404);
 

@@ -1,9 +1,9 @@
 import { Hono } from "hono/mod.ts";
 import { cors, jwt } from "hono/middleware.ts";
 import { connect } from "mongoose";
-import { task_router } from "./task/router.ts";
+import { task_router } from "./task/task.router.ts";
 import { auth_router } from "./user/auth.router.ts";
-import { user_router } from "./user/router.ts";
+import { user_router } from "./user/user.router.ts";
 import { env } from "./env.ts";
 
 const app = new Hono();
