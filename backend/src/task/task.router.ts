@@ -1,47 +1,8 @@
-import { Context, Hono, Next } from "hono/mod.ts";
+import { Hono } from "hono/mod.ts";
 import { Task } from "./model.ts";
-import { z } from "zod";
 import { Try } from "fp-try";
 import { User } from "../user/model.ts";
-
-const create_task_body_validator = z.object({
-	value: z.string().trim().min(1),
-});
-
-type CreateTaskBody = z.infer<typeof create_task_body_validator>;
-
-type CreateTask = {
-	Variables: {
-		body: CreateTaskBody;
-	};
-};
-
-const patch_task_body_validator = z.object({
-	value: z.string().trim().min(1),
-	completed: z.boolean(),
-}).partial();
-
-type PatchTaskBody = z.infer<typeof patch_task_body_validator>;
-
-type PatchTask = {
-	Variables: {
-		body: PatchTaskBody;
-	};
-};
-
-function createMiddleware<E extends ({ Variables: { body: any } })>(validator: z.ZodType) {
-	return async (c: Context<E>, next: Next) => {
-		const body = await c.req.json();
-		const validation_result = validator.safeParse(body);
-		if (!validation_result.success) return c.json({ message: validation_result.error.message }, 400);
-
-		c.set("body", validation_result.data);
-		await next();
-	};
-}
-
-const postBodyValidatorMiddleware = createMiddleware<CreateTask>(create_task_body_validator);
-const patchBodyValidatorMiddleware = createMiddleware<PatchTask>(patch_task_body_validator);
+import { taskPatchBodyValidatorMiddleware, taskPostBodyValidatorMiddleware } from "./middleware.ts";
 
 export const task_router = new Hono();
 
@@ -63,7 +24,7 @@ task_router.get("/:id", async (c) => {
 	return c.json(task.data);
 });
 
-task_router.post("/", postBodyValidatorMiddleware, async (c) => {
+task_router.post("/", taskPostBodyValidatorMiddleware, async (c) => {
 	const { username }: { username: string } = c.get("jwtPayload");
 	const user = await User.findOne({ username }).exec();
 	if (!user) return c.json({ message: "User not found" }, 400);
@@ -75,7 +36,7 @@ task_router.post("/", postBodyValidatorMiddleware, async (c) => {
 	return c.json(new_task.data);
 });
 
-task_router.patch("/:id", patchBodyValidatorMiddleware, async (c) => {
+task_router.patch("/:id", taskPatchBodyValidatorMiddleware, async (c) => {
 	const id = c.req.param("id");
 	const body = c.get("body");
 	const patched_task = await Try(() => Task.findByIdAndUpdate(id, body, { new: true }).exec());
