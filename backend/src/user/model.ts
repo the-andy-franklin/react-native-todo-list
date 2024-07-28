@@ -15,7 +15,15 @@ const UserSchema = new Schema<User>({
 	username: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
 	tasks: [{ type: Schema.Types.ObjectId, ref: "Task" }],
-}, { timestamps: true });
+}, {
+	timestamps: true,
+	toJSON: {
+		transform: (doc, obj) => {
+			delete obj.password;
+			return obj;
+		},
+	},
+});
 
 UserSchema.pre("save", async function (next) {
 	if (!this.isModified("password")) return next();

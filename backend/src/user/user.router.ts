@@ -1,7 +1,7 @@
 import { Hono } from "hono/mod.ts";
 import { User } from "./model.ts";
 
-const user_router = new Hono();
+export const user_router = new Hono();
 
 user_router.get("/me", async (c) => {
 	const { username } = c.get("jwtPayload");
@@ -18,5 +18,3 @@ user_router.delete("/me", async (c) => {
 
 	return c.json({ message: "User deleted" });
 });
-
-export { user_router };

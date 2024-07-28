@@ -29,8 +29,6 @@ type PatchTask = {
 	};
 };
 
-const task_router = new Hono();
-
 function createMiddleware<E extends ({ Variables: { body: any } })>(validator: z.ZodType) {
 	return async (c: Context<E>, next: Next) => {
 		const body = await c.req.json();
@@ -44,6 +42,8 @@ function createMiddleware<E extends ({ Variables: { body: any } })>(validator: z
 
 const postBodyValidatorMiddleware = createMiddleware<CreateTask>(create_task_body_validator);
 const patchBodyValidatorMiddleware = createMiddleware<PatchTask>(patch_task_body_validator);
+
+export const task_router = new Hono();
 
 task_router.get("/", async (c) => {
 	const { username }: { username: string } = c.get("jwtPayload");
@@ -71,7 +71,6 @@ task_router.post("/", postBodyValidatorMiddleware, async (c) => {
 	const body = c.get("body");
 	const new_task = await Try(() => new Task({ ...body, author: user._id }).save());
 	if (new_task.failure) return c.json({ message: new_task.error.message }, 500);
-	if (!new_task.data) return c.json({ message: "Task not created" }, 500);
 
 	return c.json(new_task.data);
 });
@@ -94,5 +93,3 @@ task_router.delete("/:id", async (c) => {
 
 	return c.json({ message: "Task deleted successfully" });
 });
-
-export { task_router };
