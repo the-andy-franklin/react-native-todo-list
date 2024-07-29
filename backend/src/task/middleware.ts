@@ -5,11 +5,9 @@ const create_task_body_validator = z.object({
   value: z.string().trim().min(1),
 });
 
-type CreateTaskBody = z.infer<typeof create_task_body_validator>;
-
 type CreateTask = {
   Variables: {
-    body: CreateTaskBody;
+    body: z.infer<typeof create_task_body_validator>;
   };
 };
 
@@ -20,11 +18,9 @@ const patch_task_body_validator = z.object({
   completed: z.boolean(),
 }).partial();
 
-type PatchTaskBody = z.infer<typeof patch_task_body_validator>;
-
 type PatchTask = {
   Variables: {
-    body: PatchTaskBody;
+    body: z.infer<typeof patch_task_body_validator>;
   };
 };
 

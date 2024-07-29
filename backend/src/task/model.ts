@@ -4,7 +4,7 @@ import { User } from "../user/model.ts";
 export type Task = Document<Types.ObjectId> & {
 	value: string;
 	completed: boolean;
-	author: User;
+	author: User["_id"];
 };
 
 const TaskSchema = new Schema<Task>({

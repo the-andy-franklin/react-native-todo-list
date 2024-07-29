@@ -7,7 +7,7 @@ import { Try } from "fp-try";
 export type User = Document<Types.ObjectId> & {
 	username: string;
 	password: string;
-	tasks: Task[];
+	tasks: Task["_id"][];
 	comparePassword(candidatePassword: string): Promise<boolean>;
 };
 
